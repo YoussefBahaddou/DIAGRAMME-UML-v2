@@ -1,4 +1,4 @@
-// File: C:\Users\Youssef\Desktop\EMSI\Etude-De-Cas\DIAGRAMME-UML-main\app\layout.js
+// File: C:\Users\ABDELLAH\Desktop\EMSI\Uml\DIAGRAMME-UML-v2\app\layout.js
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

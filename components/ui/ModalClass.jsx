@@ -1,15 +1,14 @@
-import React from 'react';
+import React from "react";
 
-const ModalClass = ({ isOpen, onClose, children }) => {
+const Modal = ({ isOpen, onClose, children }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="relative bg-white rounded-lg shadow-lg p-6 w-96 max-w-lg animate-fade-in">
-        {/* Close Button */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg">
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl"
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
         >
           &times;
         </button>
@@ -19,4 +18,4 @@ const ModalClass = ({ isOpen, onClose, children }) => {
   );
 };
 
-export default ModalClass;
+export default Modal;
