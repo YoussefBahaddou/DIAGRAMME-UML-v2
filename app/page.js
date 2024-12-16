@@ -47,6 +47,7 @@ const Page = () => {
                 graph={graph}
                 paper={paper}
                 classes={classes}
+                relations={relations}
                 setClasses={setClasses}
                 onClose={handleCloseClassModal}
               />
