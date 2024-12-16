@@ -8,6 +8,7 @@ const Sidebar = ({
 }) => {
   return (
     <div className="h-screen w-64 flex flex-col justify-between p-4 bg-green-600 text-white shadow-lg rounded-r-lg">
+      
       <div>
         <div className="flex items-center justify-center mb-6">
           <div className="flex items-center space-x-2">
