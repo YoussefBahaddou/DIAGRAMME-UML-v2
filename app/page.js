@@ -78,6 +78,7 @@ const Page = () => {
             </Modal>
           )}
           <Diagram
+            className="mb-6"
             graph={graph}
             setGraph={setGraph}
             paper={paper}

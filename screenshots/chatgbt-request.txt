@@ -1,0 +1,322 @@
+This is my project folder structure (made by next.js, join js…..etc) : 
+> .next
+> App
+
+	|_______> page.js
+	|_______> layout.js
+
+> components
+	|_______> ui
+	|	   |_______> card.jsx
+	|	   |_______> button.jsx
+	|_______> AddClassFrom.jsx
+	|_______> AddRelationForm.jsx
+	|_______> GenerateJavaCode.jsx
+  |_______> GeneratePhpCode.jsx
+	|_______> NavBar.jsx
+	|_______> SideBar.jsx
+  
+> hooks
+> lib
+> node_modules
+> public
+> screenshots
+.gitignore
+components.json
+jsconfig.json
+next.config.js
+package.json
+postcss.config.js
+README.md
+tailwind.config.js
+
+So this code is basically is you enter a class in the small form, and then you add another class, and then you add a relation to it, and then it appears in the diagram in the web page. now I want to make the add class a model, so when you click the "creer une class" button in side bar, it shows a model that have the same form and once you click ajouter button it get shown it the diagram. basically I just want the creer une class to be a model rather then to be in the page
+
+AddClassFrom.jsx
+"use client";
+import { useState } from 'react';
+import * as joint from 'jointjs';
+
+const AddClassForm = ({ graph, paper, classes, setClasses }) => {
+    const [className, setClassName] = useState('');
+    const [attributes, setAttributes] = useState('');
+    const [methods, setMethods] = useState('');
+
+    const addClassToDiagram = (e) => {
+        e.preventDefault();
+        if (graph && paper) {
+            const uml = joint.shapes.uml;
+
+            const newClass = new uml.Class({
+                position: { x: 100 + classes.length * 200, y: 50 },
+                size: { width: 180, height: 150 },
+                name: className,
+                attributes: attributes.split('\n'),
+                methods: methods.split('\n'),
+            });
+
+            graph.addCell(newClass);
+            setClasses([...classes, { name: className, cell: newClass }]);
+            setClassName('');
+            setAttributes('');
+            setMethods('');
+        }
+    };
+
+    return (
+        <form onSubmit={addClassToDiagram} className="bg-gray-100 border border-gray-300 p-6 rounded-lg w-96 shadow-md">
+            <h2 className="text-2xl font-semibold text-center mb-4">Ajouter une Classe UML</h2>
+            <div className="mb-4">
+                <label htmlFor="className" className="block text-sm font-medium text-gray-700">Nom de la Classe</label>
+                <input
+                    type="text"
+                    id="className"
+                    value={className}
+                    onChange={(e) => setClassName(e.target.value)}
+                    className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="Nom de la classe"
+                    required
+                />
+            </div>
+            <div className="mb-4">
+                <label htmlFor="attributes" className="block text-sm font-medium text-gray-700">Attributs</label>
+                <textarea
+                    id="attributes"
+                    value={attributes}
+                    onChange={(e) => setAttributes(e.target.value)}
+                    rows="3"
+                    className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="+age: int\n+gender: String"
+                />
+                <small className="text-gray-500">Séparer chaque attribut par un saut de ligne.</small>
+            </div>
+            <div className="mb-4">
+                <label htmlFor="methods" className="block text-sm font-medium text-gray-700">Méthodes</label>
+                <textarea
+                    id="methods"
+                    value={methods}
+                    onChange={(e) => setMethods(e.target.value)}
+                    rows="3"
+                    className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="+isMammal()\n+mate()"
+                />
+                <small className="text-gray-500">Séparer chaque méthode par un saut de ligne.</small>
+            </div>
+            <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition">Ajouter la Classe</button>
+        </form>
+    );
+};
+
+export default AddClassForm;
+AddRelationForm.jsx
+"use client";
+import { useState } from 'react';
+import * as joint from 'jointjs';
+
+const AddRelationForm = ({ graph, classes }) => {
+    const [sourceClass, setSourceClass] = useState('');
+    const [targetClass, setTargetClass] = useState('');
+    const [relationType, setRelationType] = useState('composition');
+
+    const addRelation = (e) => {
+        e.preventDefault();
+        if (graph && sourceClass && targetClass && relationType) {
+            const source = classes.find((c) => c.name === sourceClass);
+            const target = classes.find((c) => c.name === targetClass);
+
+            if (source && target) {
+                let link;
+
+                switch (relationType) {
+                    case 'composition':
+                        link = new joint.shapes.uml.Composition({ source: { id: source.cell.id }, target: { id: target.cell.id } });
+                        break;
+                    case 'aggregation':
+                        link = new joint.shapes.uml.Aggregation({ source: { id: source.cell.id }, target: { id: target.cell.id } });
+                        break;
+                    case 'inheritance':
+                        link = new joint.shapes.uml.Generalization({ source: { id: source.cell.id }, target: { id: target.cell.id } });
+                        break;
+                    default:
+                        break;
+                }
+
+                graph.addCell(link);
+            }
+        }
+    };
+
+    return (
+        <form onSubmit={addRelation} className="bg-gray-100 border border-gray-300 p-6 rounded-lg w-96 shadow-md">
+            <h2 className="text-2xl font-semibold text-center mb-4">Ajouter une Relation</h2>
+            <div className="mb-4">
+                <label htmlFor="sourceClass" className="block text-sm font-medium text-gray-700">Classe Source</label>
+                <select
+                    id="sourceClass"
+                    value={sourceClass}
+                    onChange={(e) => setSourceClass(e.target.value)}
+                    className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    required
+                >
+                    <option value="">Sélectionner une classe</option>
+                    {classes.map((cls) => (
+                        <option key={cls.name} value={cls.name}>{cls.name}</option>
+                    ))}
+                </select>
+            </div>
+            <div className="mb-4">
+                <label htmlFor="targetClass" className="block text-sm font-medium text-gray-700">Classe Cible</label>
+                <select
+                    id="targetClass"
+                    value={targetClass}
+                    onChange={(e) => setTargetClass(e.target.value)}
+                    className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    required
+                >
+                    <option value="">Sélectionner une classe</option>
+                    {classes.map((cls) => (
+                        <option key={cls.name} value={cls.name}>{cls.name}</option>
+                    ))}
+                </select>
+            </div>
+            <div className="mb-4">
+                <label htmlFor="relationType" className="block text-sm font-medium text-gray-700">Type de Relation</label>
+                <select
+                    id="relationType"
+                    value={relationType}
+                    onChange={(e) => setRelationType(e.target.value)}
+                    className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    required
+                >
+                    <option value="composition">Composition</option>
+                    <option value="aggregation">Agrégation</option>
+                    <option value="inheritance">Héritage</option>
+                </select>
+            </div>
+            <button type="submit" className="w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700 transition">Ajouter la Relation</button>
+        </form>
+    );
+};
+
+export default AddRelationForm;
+
+Diagram.jsx
+"use client";
+import { useEffect } from 'react';
+import * as joint from 'jointjs';
+
+const Diagram = ({ graph, setGraph, paper, setPaper }) => {
+    useEffect(() => {
+        const newGraph = new joint.dia.Graph();
+        const newPaper = new joint.dia.Paper({
+            el: document.getElementById('myDiagram'),
+            model: newGraph,
+            width: 800,
+            height: 600,
+            gridSize: 10,
+        });
+
+        setGraph(newGraph);
+        setPaper(newPaper);
+    }, []);
+
+    return <div id="myDiagram" className="border border-gray-300"></div>;
+};
+
+export default Diagram;
+
+SideBar.jsx
+import React from "react";
+
+const Sidebar = () => {
+  return (
+    <div className="h-screen w-64 flex flex-col justify-between p-4 bg-green-600 text-white shadow-lg rounded-r-lg">
+      {/* Header */}
+      <div>
+        <div className="flex items-center justify-center mb-6">
+          <div className="flex items-center space-x-2">
+            <img
+              src="/images/app_logo.png"
+              alt="EMSI Logo"
+              className="h-10 w-auto"
+            />
+          </div>
+        </div>
+        <p className="text-center text-sm font-semibold">UML Diagramme :</p>
+        {/* Menu */}
+        <ul className="mt-6 space-y-4">
+          {[
+            { icon: "fa-home", text: "Créer une classe" },
+            { icon: "fa-chart-bar", text: "Créer une relation" },
+            { icon: "fa-bell", text: "Générer code PHP" },
+            { icon: "fa-chart-line", text: "Générer code Python" },
+            { icon: "fa-heart", text: "Générer code Java" },
+            { icon: "fa-wallet", text: "Exporter" },
+          ].map((item, index) => (
+            <li
+              key={index}
+              className="flex items-center p-3 rounded-lg transition-all duration-300 bg-green-600 hover:bg-green-700 cursor-pointer shadow-md hover:shadow-lg"
+            >
+              <i className={`fas ${item.icon} mr-3`}></i>
+              {item.text}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+};
+
+export default Sidebar;
+
+page.js : 
+
+"use client";
+
+import { useState } from "react";
+import AddClassForm from "../components/AddClassForm";
+import AddRelationForm from "../components/AddRelationForm";
+import Diagram from "../components/Diagram";
+import Navbar from "@/components/navBar";
+import Sidebar from "@/components/Sidebar";
+
+const Page = () => {
+  const [graph, setGraph] = useState(null);
+  const [paper, setPaper] = useState(null);
+  const [classes, setClasses] = useState([]);
+
+  return (
+    <div className="flex">
+      {/* Sidebar */}
+      <Sidebar />
+
+      {/* Main Content */}
+      <div className="flex-1 relative bg-emerald-50">
+        <Navbar />
+        <div className="flex flex-col items-center gap-8">
+          <div className="flex gap-8">
+            <AddClassForm
+              graph={graph}
+              paper={paper}
+              classes={classes}
+              setClasses={setClasses}
+            />
+            <AddRelationForm graph={graph} classes={classes} />
+          </div>
+          <Diagram
+            graph={graph}
+            setGraph={setGraph}
+            paper={paper}
+            setPaper={setPaper}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Page;
+
+
+
+

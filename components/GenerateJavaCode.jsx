@@ -1,45 +1,61 @@
-const GenerateJavaCode = ({ classes, relations }) => {
-    const generateJavaCode = () => {
-      let code = "";
-      classes.forEach((cls) => {
-        code += `public class ${cls.name} {\n`;
-  
-        // Ensure attributes are defined
-        const attributes = cls.attributes || [];
-        attributes.forEach((attr) => {
-          const type = attr.type || "Object"; // Default type
-          const name = attr.name || "undefined"; // Fallback attribute name
-          code += `    private ${type} ${name};\n`;
-        });
-  
-        code += "\n    // Getters and Setters\n";
-        attributes.forEach((attr) => {
-          const name = attr.name || "undefined";
-          const type = attr.type || "Object";
-          const capitalizedName =
-            name.charAt(0).toUpperCase() + name.slice(1);
-          code += `    public ${type} get${capitalizedName}() {\n`;
-          code += `        return ${name};\n    }\n\n`;
-          code += `    public void set${capitalizedName}(${type} ${name}) {\n`;
-          code += `        this.${name} = ${name};\n    }\n\n`;
-        });
-  
-        code += "}\n\n";
+"use client"
+const GenerateJavaCode = ({ classes }) => {
+  const generateJavaCode = () => {
+    let code = "";
+
+    classes.forEach((cls) => {
+      const { name, cell } = cls;
+
+      // Extract attributes and methods
+      const attributes = cell.get("attributes") || [];
+      const methods = cell.get("methods") || [];
+
+      code += `public class ${name} {\n\n`;
+
+      // Add attributes
+      attributes.forEach((attr) => {
+        code += `    private String ${attr};\n`;
       });
-  
-      // Add relations logic if needed
-      return code;
-    };
-  
-    return (
-      <div>
-        <h2 className="text-lg font-bold mb-4">Code Java</h2>
-        <pre className="bg-gray-100 p-4 rounded-md whitespace-pre-wrap text-sm overflow-auto max-h-96">
-          {generateJavaCode()}
-        </pre>
-      </div>
-    );
+
+      code += "\n";
+
+      // Add Getters
+      attributes.forEach((attr) => {
+        const capitalizedAttr = attr.charAt(0).toUpperCase() + attr.slice(1);
+        code += `    public String get${capitalizedAttr}() {\n`;
+        code += `        return ${attr};\n`;
+        code += `    }\n\n`;
+      });
+
+      // Add Setters
+      attributes.forEach((attr) => {
+        const capitalizedAttr = attr.charAt(0).toUpperCase() + attr.slice(1);
+        code += `    public void set${capitalizedAttr}(String ${attr}) {\n`;
+        code += `        this.${attr} = ${attr};\n`;
+        code += `    }\n\n`;
+      });
+
+      // Add methods
+      methods.forEach((method) => {
+        code += `    public void ${method}() {\n`;
+        code += `        // TODO: Implement ${method}\n`;
+        code += `    }\n\n`;
+      });
+
+      code += "}\n\n";
+    });
+
+    return code;
   };
-  
-  export default GenerateJavaCode;
-  
+
+  return (
+    <div>
+      <h2 className="text-lg font-bold mb-4">Code Java</h2>
+      <pre className="bg-gray-100 p-4 rounded-md whitespace-pre-wrap text-sm overflow-auto max-h-96">
+        {generateJavaCode()}
+      </pre>
+    </div>
+  );
+};
+
+export default GenerateJavaCode;
