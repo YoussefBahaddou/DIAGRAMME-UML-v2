@@ -12,37 +12,73 @@ const AddRelationForm = ({ graph, classes, onClose }) => {
     if (graph && sourceClass && targetClass && relationType) {
       const source = classes.find((c) => c.name === sourceClass);
       const target = classes.find((c) => c.name === targetClass);
-
+  
       if (source && target) {
+        // Supprimer les relations existantes entre ces classes
+        graph.getLinks().forEach((link) => {
+          const srcId = link.getSourceElement()?.id;
+          const tgtId = link.getTargetElement()?.id;
+          if (
+            (srcId === source.cell.id && tgtId === target.cell.id) ||
+            (srcId === target.cell.id && tgtId === source.cell.id)
+          ) {
+            graph.removeCells([link]); // Supprime le lien existant
+          }
+        });
+  
         let link;
-
+  
+        // Création de la nouvelle relation
         switch (relationType) {
           case "composition":
             link = new joint.shapes.uml.Composition({
               source: { id: source.cell.id },
               target: { id: target.cell.id },
             });
+            link.attr({
+              '.connection': { stroke: 'black', strokeWidth: 2 },
+              '.marker-target': { fill: 'white', stroke: 'black', strokeWidth: 2 },
+            });            
             break;
+  
           case "aggregation":
             link = new joint.shapes.uml.Aggregation({
               source: { id: source.cell.id },
               target: { id: target.cell.id },
             });
+            link.attr({
+              '.connection': { stroke: 'black', strokeWidth: 2 },
+              '.marker-target': { fill: 'white', stroke: 'black', strokeWidth: 2 },
+            });            
             break;
+  
           case "inheritance":
             link = new joint.shapes.uml.Generalization({
-              source: { id: source.cell.id },
-              target: { id: target.cell.id },
+              source: { id: target.cell.id }, // Classe parent
+              target: { id: source.cell.id }, // Classe enfant
             });
+            link.attr({
+              '.connection': { stroke: 'black', strokeWidth: 2 },
+              '.marker-target': { fill: 'white', stroke: 'black', strokeWidth: 2 },
+            });
+            
             break;
+  
           default:
             break;
         }
-
-        graph.addCell(link);
+  
+        // Appliquer un style uniforme aux relations
+        if (link) {
+          link.attr({
+            '.connection': { stroke: 'black', strokeWidth: 2 },
+            '.marker-target': { fill: 'white', stroke: 'black', strokeWidth: 2 },
+          });
+          graph.addCell(link);
+        }
       }
     }
-  };
+  };  
 
   return (
     <form

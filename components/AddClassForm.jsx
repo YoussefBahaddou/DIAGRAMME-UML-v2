@@ -13,7 +13,7 @@ const AddClassForm = ({ graph, paper, classes, setClasses, onClose }) => {
       const uml = joint.shapes.uml;
 
       const newClass = new uml.Class({
-        position: { x: 100 + classes.length * 200, y: 50 },
+        position: { x: 100 + classes.length * 200, y: 50 + (classes.length % 2) * 200 },
         size: { width: 180, height: 150 },
         name: className,
         attributes: attributes.split('\n'),
