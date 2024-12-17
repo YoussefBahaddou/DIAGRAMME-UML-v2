@@ -1,16 +1,24 @@
-"use client"
-const GenerateJavaCode = ({ classes }) => {
+const GenerateJavaCode = ({ classes, relations }) => {
   const generateJavaCode = () => {
     let code = "";
 
     classes.forEach((cls) => {
       const { name, cell } = cls;
 
+      // Find inheritance relation for this class
+      const inheritanceRelation = relations.find(
+        (rel) => rel.target === name && rel.type === "inheritance"
+      );
+      const parentClass = inheritanceRelation ? inheritanceRelation.source : null;
+
       // Extract attributes and methods
-      const attributes = cell.get("attributes") || [];
+      const attributes = cell.get("attributes")
       const methods = cell.get("methods") || [];
 
-      code += `public class ${name} {\n\n`;
+      // Start class definition
+      code += `public class ${name}`;
+      if (parentClass) code += ` extends ${parentClass}`;
+      code += " {\n\n";
 
       // Add attributes
       attributes.forEach((attr) => {
@@ -42,6 +50,7 @@ const GenerateJavaCode = ({ classes }) => {
         code += `    }\n\n`;
       });
 
+      // End class definition
       code += "}\n\n";
     });
 

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import * as joint from "jointjs";
 
-const AddRelationForm = ({ graph, classes, onClose }) => {
+const AddRelationForm = ({ graph, classes, relations, setRelations, onClose }) => {
   const [sourceClass, setSourceClass] = useState("");
   const [targetClass, setTargetClass] = useState("");
   const [relationType, setRelationType] = useState("composition");
@@ -34,6 +34,11 @@ const AddRelationForm = ({ graph, classes, onClose }) => {
               source: { id: source.cell.id },
               target: { id: target.cell.id },
             });
+            // Save inheritance relation
+            setRelations([
+              ...relations,
+              { source: sourceClass, target: targetClass, type: "inheritance" },
+            ]);
             break;
           default:
             break;
@@ -54,7 +59,7 @@ const AddRelationForm = ({ graph, classes, onClose }) => {
         <h2 className="text-xl font-semibold">Ajouter une Relation</h2>
         <button
           type="button"
-          onClick={onClose} // Close the modal when clicked
+          onClick={onClose}
           className="text-gray-500 hover:text-gray-700"
         >
           &times;
@@ -63,17 +68,14 @@ const AddRelationForm = ({ graph, classes, onClose }) => {
 
       {/* Classe Source Selection */}
       <div className="mb-4">
-        <label
-          htmlFor="sourceClass"
-          className="block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="sourceClass" className="block text-sm font-medium text-gray-700">
           Classe Source
         </label>
         <select
           id="sourceClass"
           value={sourceClass}
           onChange={(e) => setSourceClass(e.target.value)}
-          className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm"
           required
         >
           <option value="">Sélectionner une classe</option>
@@ -87,17 +89,14 @@ const AddRelationForm = ({ graph, classes, onClose }) => {
 
       {/* Classe Cible Selection */}
       <div className="mb-4">
-        <label
-          htmlFor="targetClass"
-          className="block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="targetClass" className="block text-sm font-medium text-gray-700">
           Classe Cible
         </label>
         <select
           id="targetClass"
           value={targetClass}
           onChange={(e) => setTargetClass(e.target.value)}
-          className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm"
           required
         >
           <option value="">Sélectionner une classe</option>
@@ -111,17 +110,14 @@ const AddRelationForm = ({ graph, classes, onClose }) => {
 
       {/* Type de Relation Selection */}
       <div className="mb-4">
-        <label
-          htmlFor="relationType"
-          className="block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="relationType" className="block text-sm font-medium text-gray-700">
           Type de Relation
         </label>
         <select
           id="relationType"
           value={relationType}
           onChange={(e) => setRelationType(e.target.value)}
-          className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm"
           required
         >
           <option value="composition">Composition</option>
