@@ -12,6 +12,17 @@ const GeneratePHPCode = ({ classes, relations }) => {
       );
       const parentClass = inheritanceRelation ? inheritanceRelation.source : null;
 
+      // Find aggregation and composition relations for this class
+      const aggregationRelations = relations.filter(
+        (rel) => rel.target === name && rel.type === "aggregation"
+      );
+      const aggregatedClasses = aggregationRelations.map((rel) => rel.source);
+
+      const compositionRelations = relations.filter(
+        (rel) => rel.target === name && rel.type === "composition"
+      );
+      const composedClasses = compositionRelations.map((rel) => rel.source);
+
       // Extract attributes and methods
       const attributes = cell.get("attributes") || [];
       const methods = cell.get("methods") || [];
@@ -21,12 +32,35 @@ const GeneratePHPCode = ({ classes, relations }) => {
       if (parentClass) code += ` extends ${parentClass}`;
       code += " {\n\n";
 
+      // Add composed classes as properties
+      composedClasses.forEach((compClass) => {
+        code += `    public $${compClass.toLowerCase()};\n`;
+      });
+
+      // Add aggregated classes as properties
+      aggregatedClasses.forEach((aggClass) => {
+        code += `    public $${aggClass.toLowerCase()};\n`;
+      });
+
       // Add attributes
       attributes.forEach((attr) => {
         code += `    public $${attr};\n`;
       });
 
       code += "\n";
+
+      // Add constructor for composed classes
+      if (composedClasses.length > 0) {
+        code += `    public function __construct(`;
+        code += composedClasses
+          .map((compClass) => `$${compClass.toLowerCase()}`)
+          .join(", ");
+        code += `) {\n`;
+        composedClasses.forEach((compClass) => {
+          code += `        $this->${compClass.toLowerCase()} = $${compClass.toLowerCase()};\n`;
+        });
+        code += `    }\n\n`;
+      }
 
       // Add methods
       methods.forEach((method) => {

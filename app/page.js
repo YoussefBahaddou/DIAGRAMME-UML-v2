@@ -11,8 +11,8 @@ import GenerateJavaCode from "../components/GenerateJavaCode";
 const Page = () => {
   const [graph, setGraph] = useState(null);
   const [paper, setPaper] = useState(null);
-  const [classes, setClasses] = useState([]); // Tracks classes
-  const [relations, setRelations] = useState([]); // Tracks relations
+  const [classes, setClasses] = useState([]);
+  const [relations, setRelations] = useState([]); 
 
   const [isClassModalOpen, setIsClassModalOpen] = useState(false);
   const [isRelationModalOpen, setIsRelationModalOpen] = useState(false);

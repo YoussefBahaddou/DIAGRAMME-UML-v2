@@ -12,22 +12,34 @@ const AddRelationForm = ({ graph, classes, relations, setRelations, onClose }) =
     if (graph && sourceClass && targetClass && relationType) {
       const source = classes.find((c) => c.name === sourceClass);
       const target = classes.find((c) => c.name === targetClass);
-
+  
       if (source && target) {
         let link;
-
+  
         switch (relationType) {
-          case "composition":
-            link = new joint.shapes.uml.Composition({
-              source: { id: source.cell.id },
-              target: { id: target.cell.id },
-            });
-            break;
+                  case "composition":
+          link = new joint.shapes.uml.Composition({
+            source: { id: source.cell.id },
+            target: { id: target.cell.id },
+          });
+          // Save composition relation
+          setRelations([
+
+            ...relations,
+            { source: sourceClass, target: targetClass, type: "composition" },
+          ]);
+          break;
+
           case "aggregation":
             link = new joint.shapes.uml.Aggregation({
               source: { id: source.cell.id },
               target: { id: target.cell.id },
             });
+            // Save aggregation relation
+            setRelations([
+              ...relations,
+              { source: sourceClass, target: targetClass, type: "aggregation" },
+            ]);
             break;
           case "inheritance":
             link = new joint.shapes.uml.Generalization({
@@ -43,12 +55,12 @@ const AddRelationForm = ({ graph, classes, relations, setRelations, onClose }) =
           default:
             break;
         }
-
+  
         graph.addCell(link);
       }
     }
   };
-
+  
   return (
     <form
       onSubmit={addRelation}

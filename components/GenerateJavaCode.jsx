@@ -11,14 +11,35 @@ const GenerateJavaCode = ({ classes, relations }) => {
       );
       const parentClass = inheritanceRelation ? inheritanceRelation.source : null;
 
+      // Find aggregation and composition relations for this class
+      const aggregationRelations = relations.filter(
+        (rel) => rel.target === name && rel.type === "aggregation"
+      );
+      const aggregatedClasses = aggregationRelations.map((rel) => rel.source);
+
+      const compositionRelations = relations.filter(
+        (rel) => rel.target === name && rel.type === "composition"
+      );
+      const composedClasses = compositionRelations.map((rel) => rel.source);
+
       // Extract attributes and methods
-      const attributes = cell.get("attributes")
+      const attributes = cell.get("attributes") || [];
       const methods = cell.get("methods") || [];
 
       // Start class definition
       code += `public class ${name}`;
       if (parentClass) code += ` extends ${parentClass}`;
       code += " {\n\n";
+
+      // Add composed classes as attributes (mandatory)
+      composedClasses.forEach((compClass) => {
+        code += `    private ${compClass} ${compClass.toLowerCase()};\n`;
+      });
+
+      // Add aggregated classes as attributes
+      aggregatedClasses.forEach((aggClass) => {
+        code += `    private ${aggClass} ${aggClass.toLowerCase()};\n`;
+      });
 
       // Add attributes
       attributes.forEach((attr) => {
@@ -27,7 +48,36 @@ const GenerateJavaCode = ({ classes, relations }) => {
 
       code += "\n";
 
-      // Add Getters
+      // Add constructor for composed classes (mandatory initialization)
+      if (composedClasses.length > 0) {
+        code += `    public ${name}(`;
+        code += composedClasses
+          .map((compClass) => `${compClass} ${compClass.toLowerCase()}`)
+          .join(", ");
+        code += ") {\n";
+        composedClasses.forEach((compClass) => {
+          code += `        this.${compClass.toLowerCase()} = ${compClass.toLowerCase()};\n`;
+        });
+        code += "    }\n\n";
+      }
+
+      // Add Getters for composed classes
+      composedClasses.forEach((compClass) => {
+        const capitalizedComp = compClass.charAt(0).toUpperCase() + compClass.slice(1);
+        code += `    public ${compClass} get${capitalizedComp}() {\n`;
+        code += `        return ${compClass.toLowerCase()};\n`;
+        code += `    }\n\n`;
+      });
+
+      // Add Getters for aggregated classes
+      aggregatedClasses.forEach((aggClass) => {
+        const capitalizedAgg = aggClass.charAt(0).toUpperCase() + aggClass.slice(1);
+        code += `    public ${aggClass} get${capitalizedAgg}() {\n`;
+        code += `        return ${aggClass.toLowerCase()};\n`;
+        code += `    }\n\n`;
+      });
+
+      // Add Getters for attributes
       attributes.forEach((attr) => {
         const capitalizedAttr = attr.charAt(0).toUpperCase() + attr.slice(1);
         code += `    public String get${capitalizedAttr}() {\n`;
@@ -35,7 +85,15 @@ const GenerateJavaCode = ({ classes, relations }) => {
         code += `    }\n\n`;
       });
 
-      // Add Setters
+      // Add Setters for aggregated classes
+      aggregatedClasses.forEach((aggClass) => {
+        const capitalizedAgg = aggClass.charAt(0).toUpperCase() + aggClass.slice(1);
+        code += `    public void set${capitalizedAgg}(${aggClass} ${aggClass.toLowerCase()}) {\n`;
+        code += `        this.${aggClass.toLowerCase()} = ${aggClass.toLowerCase()};\n`;
+        code += `    }\n\n`;
+      });
+
+      // Add Setters for attributes
       attributes.forEach((attr) => {
         const capitalizedAttr = attr.charAt(0).toUpperCase() + attr.slice(1);
         code += `    public void set${capitalizedAttr}(String ${attr}) {\n`;

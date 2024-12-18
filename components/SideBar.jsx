@@ -45,20 +45,6 @@ const Sidebar = ({
             <i className="fas fa-coffee mr-3"></i>
             Générer code Java
           </li>
-          <li
-            
-            className="flex items-center p-3 rounded-lg transition-all duration-300 bg-green-700 hover:bg-green-800 cursor-pointer shadow-md hover:shadow-lg"
-          >
-            <i className="fas fa-coffee mr-3"></i>
-            Générer code Phyton
-          </li>
-          <li
-          
-            className="flex items-center p-3 rounded-lg transition-all duration-300 bg-green-700 hover:bg-green-800 cursor-pointer shadow-md hover:shadow-lg"
-          >
-            <i className="fas fa-coffee mr-3"></i>
-            Export
-          </li>
         </ul>
       </div>
     </div>
